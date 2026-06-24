@@ -1,5 +1,7 @@
 package com.danielnery.barbearia.api.service;
 
+import com.danielnery.barbearia.api.exception.ServicoJaExisteException;
+import com.danielnery.barbearia.api.exception.ServicoNaoEncontradoException;
 import com.danielnery.barbearia.api.model.Servico;
 import com.danielnery.barbearia.api.repository.ServicoRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ public class ServicoService {
     public Servico cadastrar(Servico servico) {
         servico.setNome(servico.getNome().trim());
         if (servicoRepository.existsByNomeIgnoreCase(servico.getNome())) {
-            throw new RuntimeException("Serviço já existe.");
+            throw new ServicoJaExisteException("Serviço já existe.");
         }
 
         return servicoRepository.save(servico);
@@ -34,14 +36,20 @@ public class ServicoService {
     }
 
     public Servico buscarPorId(UUID id) {
-        return servicoRepository.findById(id).orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
+        return servicoRepository.findById(id).orElseThrow(() -> new ServicoNaoEncontradoException("Serviço não encontrado"));
     }
 
-    public void desativar(UUID id) {
+    public Servico desativar(UUID id) {
 
         Servico servico = buscarPorId(id);
         servico.setAtivo(false);
-        servicoRepository.save(servico);
+        return servicoRepository.save(servico);
+    }
+    public Servico ativar(UUID id) {
+
+        Servico servico = buscarPorId(id);
+        servico.setAtivo(true);
+        return servicoRepository.save(servico);
     }
 
 

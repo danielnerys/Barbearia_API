@@ -49,5 +49,17 @@ public class ServicoController {
         return new ResponseEntity<>(novoServico, HttpStatus.CREATED);
     }
 
+    @PatchMapping ("/{id}/ativar")
+    @Operation(summary = "Ativar Serviço", description = "Essa rota serve para ativar um serviço")
+    public ResponseEntity<Servico> ativar(@PathVariable UUID id){
+        return ResponseEntity.ok(servicoService.ativar(id));
+    }
+
+    @PatchMapping("/{id}/desativar")
+    @Operation(summary = "Desativar serviço", description = "Rota para desativar um serviço")
+    public  ResponseEntity<Servico> desativar(@PathVariable UUID id){
+        return ResponseEntity.ok(servicoService.desativar(id));
+    }
+
 
 }
