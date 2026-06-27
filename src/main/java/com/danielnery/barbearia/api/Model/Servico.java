@@ -1,4 +1,4 @@
-package com.danielnery.barbearia.api.model;
+package com.danielnery.barbearia.api.Model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

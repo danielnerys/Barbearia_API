@@ -1,12 +1,11 @@
-package com.danielnery.barbearia.api.controller;
+package com.danielnery.barbearia.api.Controller;
 
-import com.danielnery.barbearia.api.model.Barbeiro;
-import com.danielnery.barbearia.api.service.BarbeiroService;
+import com.danielnery.barbearia.api.Model.Barbeiro;
+import com.danielnery.barbearia.api.Service.BarbeiroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

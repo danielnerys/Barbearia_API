@@ -1,4 +1,4 @@
-package com.danielnery.barbearia.api.exception;
+package com.danielnery.barbearia.api.Exception;
 
 
 

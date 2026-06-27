@@ -1,4 +1,4 @@
-package com.danielnery.barbearia.api.exception;
+package com.danielnery.barbearia.api.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,5 +33,21 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND
         ).body(erro);
+    }
+
+    @ExceptionHandler(AgendamentoNaoEncontrado.class)
+    public ResponseEntity<Map<String,String >> AgendamentoNaoEncontrado(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+        erro.put("menasgem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+    }
+
+    @ExceptionHandler(UsuarioNaoEncontrado.class)
+    public ResponseEntity<Map<String,String >> UsuarioNaoEncontrado(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+        erro.put("menasgem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
     }
 }

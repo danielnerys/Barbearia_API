@@ -1,6 +1,6 @@
-package com.danielnery.barbearia.api.repository;
+package com.danielnery.barbearia.api.Repository;
 
-import com.danielnery.barbearia.api.model.Usuario;
+import com.danielnery.barbearia.api.Model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,7 +1,6 @@
-package com.danielnery.barbearia.api.repository;
+package com.danielnery.barbearia.api.Repository;
 
-import com.danielnery.barbearia.api.model.Servico;
-import jakarta.validation.constraints.NotBlank;
+import com.danielnery.barbearia.api.Model.Servico;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

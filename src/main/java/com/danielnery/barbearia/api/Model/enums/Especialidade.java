@@ -1,4 +1,4 @@
-package com.danielnery.barbearia.api.model.enums;
+package com.danielnery.barbearia.api.Model.enums;
 
 public enum Especialidade {
     FADE,

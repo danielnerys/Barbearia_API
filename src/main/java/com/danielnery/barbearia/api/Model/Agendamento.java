@@ -1,6 +1,6 @@
-package com.danielnery.barbearia.api.model;
+package com.danielnery.barbearia.api.Model;
 
-import com.danielnery.barbearia.api.model.enums.StatusAgendamento;
+import com.danielnery.barbearia.api.Model.enums.StatusAgendamento;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,7 +29,7 @@ public class Agendamento {
 
     @ManyToOne
     @JoinColumn(name = "servico_id", nullable = false)
-    private Servico service;
+    private Servico servico;
 
     @Column(name = "data_hora_visita", nullable = false)
     private LocalDateTime dataHoraVisita;

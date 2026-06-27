@@ -1,8 +1,8 @@
-package com.danielnery.barbearia.api.service;
+package com.danielnery.barbearia.api.Service;
 
-import com.danielnery.barbearia.api.exception.BarbeiroNaoEncontrado;
-import com.danielnery.barbearia.api.model.Barbeiro;
-import com.danielnery.barbearia.api.repository.BarbeiroRepository;
+import com.danielnery.barbearia.api.Exception.BarbeiroNaoEncontrado;
+import com.danielnery.barbearia.api.Model.Barbeiro;
+import com.danielnery.barbearia.api.Repository.BarbeiroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

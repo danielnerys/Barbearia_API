@@ -1,14 +1,12 @@
-package com.danielnery.barbearia.api.service;
+package com.danielnery.barbearia.api.Service;
 
-import com.danielnery.barbearia.api.exception.ServicoJaExisteException;
-import com.danielnery.barbearia.api.exception.ServicoNaoEncontradoException;
-import com.danielnery.barbearia.api.model.Servico;
-import com.danielnery.barbearia.api.repository.ServicoRepository;
+import com.danielnery.barbearia.api.Exception.ServicoJaExisteException;
+import com.danielnery.barbearia.api.Exception.ServicoNaoEncontradoException;
+import com.danielnery.barbearia.api.Model.Servico;
+import com.danielnery.barbearia.api.Repository.ServicoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.Serial;
 import java.util.List;
 import java.util.UUID;
 

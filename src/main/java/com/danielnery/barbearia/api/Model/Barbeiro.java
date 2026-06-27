@@ -1,9 +1,7 @@
-package com.danielnery.barbearia.api.model;
+package com.danielnery.barbearia.api.Model;
 
-import com.danielnery.barbearia.api.model.enums.Especialidade;
+import com.danielnery.barbearia.api.Model.enums.Especialidade;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

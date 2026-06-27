@@ -1,6 +1,6 @@
-package com.danielnery.barbearia.api.model;
+package com.danielnery.barbearia.api.Model;
 
-import com.danielnery.barbearia.api.model.enums.Role;
+import com.danielnery.barbearia.api.Model.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

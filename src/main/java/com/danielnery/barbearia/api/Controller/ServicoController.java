@@ -1,16 +1,13 @@
-package com.danielnery.barbearia.api.controller;
+package com.danielnery.barbearia.api.Controller;
 
-import aj.org.objectweb.asm.commons.SerialVersionUIDAdder;
-import com.danielnery.barbearia.api.model.Servico;
-import com.danielnery.barbearia.api.service.ServicoService;
+import com.danielnery.barbearia.api.Model.Servico;
+import com.danielnery.barbearia.api.Service.ServicoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
