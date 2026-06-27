@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AgendamentoNaoEncontrado.class)
     public ResponseEntity<Map<String,String >> AgendamentoNaoEncontrado(RuntimeException exception){
         Map<String, String> erro = new HashMap<>();
-        erro.put("menasgem", exception.getMessage());
+        erro.put("mensagem", exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
     }
@@ -46,8 +46,36 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsuarioNaoEncontrado.class)
     public ResponseEntity<Map<String,String >> UsuarioNaoEncontrado(RuntimeException exception){
         Map<String, String> erro = new HashMap<>();
-        erro.put("menasgem", exception.getMessage());
+        erro.put("mensagem", exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+    }
+
+
+    @ExceptionHandler(BarbeiroInativoException.class)
+    public ResponseEntity<Map<String, String>> BarbeirInativoException(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+
+        erro.put("mensagem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    @ExceptionHandler(ServicoInativoException.class)
+    public ResponseEntity<Map<String, String>> ServicoInativoException(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+
+        erro.put("mensagem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    @ExceptionHandler(HorarioIndisponivelException.class)
+    public ResponseEntity<Map<String, String>> HorarioIndisponivelException(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+
+        erro.put("mensagem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
 }
