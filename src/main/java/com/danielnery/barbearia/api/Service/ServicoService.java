@@ -1,5 +1,6 @@
 package com.danielnery.barbearia.api.Service;
 
+import com.danielnery.barbearia.api.DTO.Request.ServicoRequest;
 import com.danielnery.barbearia.api.DTO.response.ServicoResponse;
 import com.danielnery.barbearia.api.Exception.ServicoJaExisteException;
 import com.danielnery.barbearia.api.Exception.ServicoNaoEncontradoException;
@@ -18,14 +19,27 @@ public class ServicoService {
 
     private final ServicoRepository servicoRepository;
 
+    private Servico buscarEntidadePorId(UUID id) {
 
-    public ServicoResponse cadastrar(Servico servico) {
-        servico.setNome(servico.getNome().trim());
-        if (servicoRepository.existsByNomeIgnoreCase(servico.getNome())) {
+        return servicoRepository.findById(id).orElseThrow(() -> new ServicoNaoEncontradoException("Serviço não encontrado"));
+
+
+    }
+
+
+    public ServicoResponse cadastrar(ServicoRequest request) {
+        Servico novoServico = new Servico();
+        novoServico.setNome(request.nome().trim());
+        novoServico.setDescricao(request.descricao().trim());
+        novoServico.setDuracaoMinutos(request.duracaoMinutos());
+        novoServico.setPreco(request.preco());
+        novoServico.setAtivo(request.ativo() != null ? request.ativo() : true);
+
+        if (servicoRepository.existsByNomeIgnoreCase(novoServico.getNome())) {
             throw new ServicoJaExisteException("Serviço já existe.");
         }
 
-        return toResponse(servicoRepository.save(servico));
+        return toResponse(servicoRepository.save(novoServico));
     }
 
     public List<ServicoResponse> listarTodos() {
@@ -37,20 +51,20 @@ public class ServicoService {
     }
 
     public ServicoResponse buscarPorId(UUID id) {
-        Servico servico = servicoRepository.findById(id).orElseThrow(() -> new ServicoNaoEncontradoException("Serviço não encontrado"));
+        Servico servico = buscarEntidadePorId(id);
 
         return toResponse(servico);
     }
 
     public ServicoResponse desativar(UUID id) {
-        Servico servico = servicoRepository.findById(id).orElseThrow(() -> new ServicoNaoEncontradoException("Serviço não encontrado"));
+        Servico servico = buscarEntidadePorId(id);
         servico.setAtivo(false);
         servicoRepository.save(servico);
         return toResponse(servico);
     }
 
     public ServicoResponse ativar(UUID id) {
-        Servico servico = servicoRepository.findById(id).orElseThrow(() -> new ServicoNaoEncontradoException("Serviço não encontrado"));
+        Servico servico = buscarEntidadePorId(id);
         servico.setAtivo(true);
         servicoRepository.save(servico);
         return toResponse(servico);

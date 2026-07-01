@@ -1,5 +1,6 @@
 package com.danielnery.barbearia.api.Controller;
 
+import com.danielnery.barbearia.api.DTO.Request.ServicoRequest;
 import com.danielnery.barbearia.api.DTO.response.ServicoResponse;
 import com.danielnery.barbearia.api.Model.Servico;
 import com.danielnery.barbearia.api.Service.ServicoService;
@@ -52,8 +53,8 @@ public class ServicoController {
 
     @PostMapping
     @Operation(summary = "Cadastrar serviço", description = "Rota para cadastrar novo serviço")
-    public ResponseEntity<ServicoResponse> cadastrarServico(@Valid @RequestBody Servico servico) {
-        ServicoResponse novoServico = servicoService.cadastrar(servico);
+    public ResponseEntity<ServicoResponse> cadastrarServico(@Valid @RequestBody ServicoRequest request) {
+        ServicoResponse novoServico = servicoService.cadastrar(request);
         return new ResponseEntity<>(novoServico, HttpStatus.CREATED);
     }
 

@@ -1,5 +1,6 @@
 package com.danielnery.barbearia.api.Controller;
 
+import com.danielnery.barbearia.api.DTO.Request.BarbeiroRequest;
 import com.danielnery.barbearia.api.DTO.response.BarbeiroResponse;
 import com.danielnery.barbearia.api.Model.Barbeiro;
 import com.danielnery.barbearia.api.Service.BarbeiroService;
@@ -25,7 +26,7 @@ public class BarbeiroController {
 
     @PostMapping
     @Operation(summary = "Cadastrar novo barbeiro")
-    public ResponseEntity<BarbeiroResponse> cadastrar(@Valid @RequestBody Barbeiro barbeiro){
+    public ResponseEntity<BarbeiroResponse> cadastrar(@Valid @RequestBody BarbeiroRequest barbeiro){
         return new ResponseEntity<>(barbeiroService.cadastrar(barbeiro), HttpStatus.CREATED);
     }
 

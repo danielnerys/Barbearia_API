@@ -1,9 +1,11 @@
 package com.danielnery.barbearia.api.Service;
 
+import com.danielnery.barbearia.api.DTO.Request.UsuarioRequest;
 import com.danielnery.barbearia.api.DTO.response.UsuarioResponse;
 import com.danielnery.barbearia.api.Exception.UsuarioJaExisteException;
 import com.danielnery.barbearia.api.Exception.UsuarioNaoEncontrado;
 import com.danielnery.barbearia.api.Model.Usuario;
+import com.danielnery.barbearia.api.Model.enums.Role;
 import com.danielnery.barbearia.api.Repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,14 +17,17 @@ import java.util.UUID;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
 
-    public UsuarioResponse cadastrar(Usuario usuario) {
-        usuario.setNome(usuario.getNome().trim());
-        usuario.setEmail(usuario.getEmail().trim().toLowerCase());
-        if(usuarioRepository.existsByEmail(usuario.getEmail())){
+    public UsuarioResponse cadastrar(UsuarioRequest usuario) {
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setEmail(usuario.email().trim().toLowerCase());
+        novoUsuario.setNome(usuario.nome().trim());
+        novoUsuario.setSenha(usuario.senha());
+        novoUsuario.setRole(Role.CLIENTE);
+        if(usuarioRepository.existsByEmail(novoUsuario.getEmail())){
             throw new UsuarioJaExisteException("E-mail já cadastrado!");
         }
-        Usuario usuarioSalvo = usuarioRepository.save(usuario);
-        return toResponse(usuarioSalvo);
+
+        return toResponse(usuarioRepository.save(novoUsuario));
 
     }
 

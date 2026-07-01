@@ -1,7 +1,7 @@
 package com.danielnery.barbearia.api.Controller;
 
+import com.danielnery.barbearia.api.DTO.Request.UsuarioRequest;
 import com.danielnery.barbearia.api.DTO.response.UsuarioResponse;
-import com.danielnery.barbearia.api.Model.Usuario;
 import com.danielnery.barbearia.api.Service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +24,7 @@ public class UsuarioController {
 
     @PostMapping
     @Operation(summary = "Cadastrar novo usuário")
-    public ResponseEntity<UsuarioResponse> cadastrar(@Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioResponse> cadastrar(@Valid @RequestBody UsuarioRequest usuario) {
         UsuarioResponse novoUsuario = usuarioService.cadastrar(usuario);
 
         return new ResponseEntity<>(novoUsuario, HttpStatus.CREATED);
