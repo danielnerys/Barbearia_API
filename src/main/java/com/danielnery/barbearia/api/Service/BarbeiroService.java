@@ -1,5 +1,6 @@
 package com.danielnery.barbearia.api.Service;
 
+import com.danielnery.barbearia.api.DTO.response.BarbeiroResponse;
 import com.danielnery.barbearia.api.Exception.BarbeiroNaoEncontrado;
 import com.danielnery.barbearia.api.Model.Barbeiro;
 import com.danielnery.barbearia.api.Repository.BarbeiroRepository;
@@ -14,32 +15,53 @@ import java.util.UUID;
 public class BarbeiroService {
     private final BarbeiroRepository barbeiroRepository;
 
-    public Barbeiro cadastrar (Barbeiro barbeiro){
-        barbeiro.setNome(barbeiro.getNome().trim());
-        return barbeiroRepository.save(barbeiro);
-    }
-
-    public List<Barbeiro> listarTodos(){
-        return barbeiroRepository.findAll();
-    }
-
-    public Barbeiro buscarBarbeiroPorId(UUID id){
+    private Barbeiro buscarEntidadePorId(UUID id){
         return barbeiroRepository.findById(id).orElseThrow(() -> new BarbeiroNaoEncontrado("Barbeiro não encontrado"));
     }
 
-    public List<Barbeiro> listarBarbeirosAtivos(){
-        return barbeiroRepository.findByAtivoTrue();
+    public BarbeiroResponse cadastrar (Barbeiro barbeiro){
+        barbeiro.setNome(barbeiro.getNome().trim());
+        barbeiroRepository.save(barbeiro);
+        return toResponse(barbeiro);
     }
 
-    public Barbeiro desativar(UUID id){
-        Barbeiro barbeiro = buscarBarbeiroPorId(id);
+    public List<BarbeiroResponse> listarTodos(){
+        return barbeiroRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public BarbeiroResponse buscarBarbeiroPorId(UUID id){
+        Barbeiro barbeiro = buscarEntidadePorId(id);
+
+        return toResponse(barbeiro);
+    }
+
+    public List<BarbeiroResponse> listarBarbeirosAtivos(){
+        return barbeiroRepository.findByAtivoTrue()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public BarbeiroResponse desativar(UUID id){
+        Barbeiro barbeiro = buscarEntidadePorId(id);
         barbeiro.setAtivo(false);
-        return barbeiroRepository.save(barbeiro);
+        barbeiroRepository.save(barbeiro);
+        return toResponse(barbeiro);
     }
 
-    public Barbeiro ativar(UUID id){
-        Barbeiro barbeiro = buscarBarbeiroPorId(id);
+    public BarbeiroResponse ativar(UUID id){
+        Barbeiro barbeiro = buscarEntidadePorId(id);
         barbeiro.setAtivo(true);
-        return barbeiroRepository.save(barbeiro);
+        barbeiroRepository.save(barbeiro);
+        return toResponse(barbeiro);
+    }
+
+    private BarbeiroResponse toResponse(Barbeiro barbeiro){
+        return new BarbeiroResponse(
+                barbeiro.getId(),
+                barbeiro.getNome(),
+                barbeiro.getEspecialidade(),
+                barbeiro.getAtivo()
+        );
     }
 }

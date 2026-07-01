@@ -1,6 +1,7 @@
 package com.danielnery.barbearia.api.Controller;
 
 import com.danielnery.barbearia.api.DTO.Request.AgendamentoRequest;
+import com.danielnery.barbearia.api.DTO.response.AgendamentoResponse;
 import com.danielnery.barbearia.api.Model.Agendamento;
 import com.danielnery.barbearia.api.Service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,15 +26,15 @@ public class AgendamentoController {
 
     @PostMapping
     @Operation(summary = "Realizar agendamento.")
-    public ResponseEntity<Agendamento> cadastrarAgendamento(@Valid @RequestBody AgendamentoRequest agendamento){
+    public ResponseEntity<AgendamentoResponse> cadastrarAgendamento(@Valid @RequestBody AgendamentoRequest agendamento){
         return new ResponseEntity<>(agendamentoService.cadastrar(agendamento), HttpStatus.CREATED);
 
     }
 
     @GetMapping
     @Operation(summary = "Listar todos agendamentos")
-    public ResponseEntity<List<Agendamento>> listarTodos(){
-        List<Agendamento> agendamentos = agendamentoService.listarTodos();
+    public ResponseEntity<List<AgendamentoResponse>> listarTodos(){
+        List<AgendamentoResponse> agendamentos = agendamentoService.listarTodos();
         if(agendamentos.isEmpty()){
             return ResponseEntity.noContent().build();
         }
@@ -43,13 +44,13 @@ public class AgendamentoController {
     @GetMapping("/{id}")
     @Operation(summary = "Buscar agendamento por Id")
     public ResponseEntity<Agendamento> buscarPorId(@PathVariable UUID id){
-        return new ResponseEntity<>(agendamentoService.buscarPorId(id), HttpStatus.OK);
+        return ResponseEntity.ok(agendamentoService.buscarPorId(id));
     }
 
 
     @PatchMapping("/{id}/cancelar")
     @Operation(summary = "Cancelar agendamento")
-    public ResponseEntity<Agendamento> cancelarAgendamento(@PathVariable UUID id){
+    public ResponseEntity<AgendamentoResponse> cancelarAgendamento(@PathVariable UUID id){
         return ResponseEntity.ok(agendamentoService.cancelarAgendamento(id));
     }
 }

@@ -1,9 +1,9 @@
 package com.danielnery.barbearia.api.Controller;
 
+import com.danielnery.barbearia.api.DTO.response.UsuarioResponse;
 import com.danielnery.barbearia.api.Model.Usuario;
 import com.danielnery.barbearia.api.Service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,16 +24,16 @@ public class UsuarioController {
 
     @PostMapping
     @Operation(summary = "Cadastrar novo usuário")
-    public ResponseEntity<Usuario> cadastrar(@Valid @RequestBody Usuario usuario) {
-        Usuario novoUsuario = usuarioService.cadastrar(usuario);
+    public ResponseEntity<UsuarioResponse> cadastrar(@Valid @RequestBody Usuario usuario) {
+        UsuarioResponse novoUsuario = usuarioService.cadastrar(usuario);
 
         return new ResponseEntity<>(novoUsuario, HttpStatus.CREATED);
     }
 
     @GetMapping()
     @Operation(summary = "Listar todos Usuários")
-    public ResponseEntity<List<Usuario>> listarTodos() {
-        List<Usuario> usuarios = usuarioService.listarTodos();
+    public ResponseEntity<List<UsuarioResponse>> listarTodos() {
+        List<UsuarioResponse> usuarios = usuarioService.listarTodos();
         if (usuarios.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -42,7 +42,7 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar usuário por ID")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable UUID id) {
+    public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
