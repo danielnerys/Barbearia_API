@@ -2,6 +2,7 @@ package com.danielnery.barbearia.api.Model;
 
 import com.danielnery.barbearia.api.Model.enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,12 +17,15 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotBlank
     @Column(nullable = false, length = 100)
     private String nome;
 
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String email;
 
+    @NotBlank
     @Column(nullable = false, length = 255)
     private String senha;
 

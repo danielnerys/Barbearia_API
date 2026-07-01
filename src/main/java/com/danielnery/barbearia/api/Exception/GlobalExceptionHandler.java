@@ -78,4 +78,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
+
+    @ExceptionHandler(UsuarioJaExisteException.class)
+    public ResponseEntity<Map<String, String>> UsuarioJaExisteExeption(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+
+        erro.put("mensagem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
 }
