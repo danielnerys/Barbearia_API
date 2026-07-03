@@ -5,6 +5,7 @@ import com.danielnery.barbearia.api.DTO.response.AgendamentoResponse;
 import com.danielnery.barbearia.api.Model.Agendamento;
 import com.danielnery.barbearia.api.Service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
