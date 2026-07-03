@@ -8,6 +8,7 @@ import com.danielnery.barbearia.api.Model.Usuario;
 import com.danielnery.barbearia.api.Model.enums.Role;
 import com.danielnery.barbearia.api.Repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
@@ -16,12 +17,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioResponse cadastrar(UsuarioRequest usuario) {
         Usuario novoUsuario = new Usuario();
         novoUsuario.setEmail(usuario.email().trim().toLowerCase());
         novoUsuario.setNome(usuario.nome().trim());
-        novoUsuario.setSenha(usuario.senha());
+        novoUsuario.setSenha(passwordEncoder.encode(usuario.senha()));
         novoUsuario.setRole(Role.CLIENTE);
         if(usuarioRepository.existsByEmail(novoUsuario.getEmail())){
             throw new UsuarioJaExisteException("E-mail já cadastrado!");
