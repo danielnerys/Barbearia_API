@@ -31,6 +31,18 @@ There is no separate lint command configured in `pom.xml`.
 
 Every property added since the initial setup has a sensible default via `@Value("${prop:default}")`, so the app boots without any of them being set explicitly — only the datasource and JWT secret are truly required to have real values (defaults exist but point at throwaway local credentials).
 
+Because that file is gitignored, it must also set `spring.jpa.hibernate.ddl-auto=validate` — see "Database migrations" below. Everything Flyway itself needs lives in committed code (`FlywayConfig`), so a missing properties file can't silently disable migrations.
+
+## Database migrations
+
+Schema is owned by **Flyway**, not by Hibernate. `spring.jpa.hibernate.ddl-auto` must be `validate`: Hibernate only checks that the entities match the schema Flyway built, and fails startup on any drift.
+
+Migrations live in `src/main/resources/db/migration` as `V<n>__<descricao>.sql`. **Any schema change is a new migration file** — never an edit to an applied one (Flyway checksums them and refuses to start if one changed) and never a manual `ALTER TABLE` against a running database.
+
+`V1__baseline.sql` is the schema as it stood when Flyway was adopted, extracted with `pg_dump --schema-only` from a database built by the old `ddl-auto=update`. It deliberately keeps Hibernate's generated constraint names (`ukkb972...`, `fkcgtkui...`) so that new databases come out identical to the pre-existing ones.
+
+`FlywayConfig` sets `baselineOnMigrate` with `baselineVersion=1`, which is what makes both paths work: a database that predates Flyway is stamped at version 1 and skips `V1` (its schema already exists), while an empty database runs `V1` normally. This is configured in Java rather than in properties because `application.properties` is gitignored.
+
 On startup, `AdminSeeder` creates a `Role.ADMIN` user (`ADMIN_EMAIL`/`ADMIN_SENHA`, defaulting to `admin@barbearia.com`/`admin123`) if one with that email doesn't already exist yet — this is the only way to obtain an admin account, since registration (`POST /api/usuarios`) always hardcodes `Role.CLIENTE`.
 
 ## Architecture
@@ -64,16 +76,7 @@ Configured centrally in `SecurityConfig` via a `CorsConfigurationSource` bean pl
 
 `AgendamentoService.cadastrar` enforces several invariants before saving — keep these in sync when touching appointment logic: barbeiro must exist and be `ativo`, servico must exist and be `ativo`, appointment time must fall on a 30-minute boundary (`:00` or `:30`), and the barbeiro must not already have an appointment at that exact `dataHoraVisita` (checked via `AgendamentoRepository.existsByBarbeiroAndDataHoraVisitaAndStatusAgendamentoNot`, which ignores `CANCELADO` rows so a cancelled slot becomes bookable again). `valorServicoNoMomento` snapshots the service's price at booking time rather than referencing the live `Servico` price.
 
-The DB-level guard against the check-then-save race is a **partial** unique index — plain JPA can't express one, so `Agendamento` deliberately carries no `uniqueConstraints`, and the index has to be created by hand (there is no Flyway/Liquibase in this project; `ddl-auto=update` never drops or replaces existing constraints):
-
-```sql
-ALTER TABLE agendamentos DROP CONSTRAINT IF EXISTS uk_barbeiro_data_hora_visita;
-CREATE UNIQUE INDEX IF NOT EXISTS uk_barbeiro_data_hora_visita_ativo
-    ON agendamentos (barbeiro_id, data_hora_visita)
-    WHERE status_agendamento <> 'CANCELADO';
-```
-
-Until that runs against a given database, the old full constraint (if present) keeps cancelled slots permanently blocked, and a fresh database has no DB-level protection against two concurrent bookings of the same slot — the application check still covers the common case.
+The DB-level guard against the check-then-save race is the **partial** unique index `uk_barbeiro_data_hora_visita_ativo`, created in `V1__baseline.sql`. Plain JPA can't express a partial index, so `Agendamento` deliberately carries no `uniqueConstraints` — the index exists only in the migration, and Hibernate's `validate` does not check indexes, so nothing will warn you if it goes missing.
 
 `cadastrar` takes the `cliente` as an already-resolved `Usuario` parameter, not an id in the request body — `AgendamentoController` resolves it via `@AuthenticationPrincipal Usuario`, so a request can never book on behalf of someone else by editing the JSON. If a future ADMIN-books-for-client flow is needed, it should be a separate, explicit endpoint.
 
