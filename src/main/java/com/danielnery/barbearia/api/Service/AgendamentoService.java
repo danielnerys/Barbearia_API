@@ -12,6 +12,7 @@ import com.danielnery.barbearia.api.Repository.BarbeiroRepository;
 import com.danielnery.barbearia.api.Repository.ServicoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +21,12 @@ import com.danielnery.barbearia.api.Model.enums.Role;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.danielnery.barbearia.api.Model.enums.StatusAgendamento.AGENDADO;
 import static com.danielnery.barbearia.api.Model.enums.StatusAgendamento.CANCELADO;
@@ -33,12 +38,18 @@ public class AgendamentoService {
     private final BarbeiroRepository barbeiroRepository;
     private final ServicoRepository servicoRepository;
 
+    @Value("${api.barbearia.horario-abertura:09:00}")
+    private LocalTime horarioAbertura;
+
+    @Value("${api.barbearia.horario-fechamento:19:00}")
+    private LocalTime horarioFechamento;
+
     private Barbeiro buscarBarbeiro(UUID id) {
-        return barbeiroRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário Não encontrado"));
+        return barbeiroRepository.findById(id).orElseThrow(() -> new BarbeiroNaoEncontrado("Barbeiro não encontrado"));
     }
 
     private Servico buscarServico(UUID id) {
-        return servicoRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário Não encontrado"));
+        return servicoRepository.findById(id).orElseThrow(() -> new ServicoNaoEncontradoException("Serviço não encontrado"));
     }
 
     private void validarHorario(AgendamentoRequest request) {
@@ -110,6 +121,39 @@ public class AgendamentoService {
         LocalDateTime fim = data.atTime(LocalTime.MAX);
 
         return agendamentoRepository.findByBarbeiroAndDataHoraVisitaBetween(barbeiro, inicio, fim).stream().map(this::toResponse).toList();
+    }
+
+    public List<String> listarDisponibilidade(UUID barbeiroId, LocalDate data) {
+        Barbeiro barbeiro = buscarBarbeiro(barbeiroId);
+
+        if (!barbeiro.getAtivo()) {
+            return List.of();
+        }
+
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.atTime(LocalTime.MAX);
+
+        Set<LocalTime> horariosOcupados = agendamentoRepository.findByBarbeiroAndDataHoraVisitaBetween(barbeiro, inicio, fim).stream()
+                .filter(agendamento -> agendamento.getStatusAgendamento() != CANCELADO)
+                .map(agendamento -> agendamento.getDataHoraVisita().toLocalTime())
+                .collect(Collectors.toSet());
+
+        boolean hoje = data.isEqual(LocalDate.now());
+        LocalDateTime agora = LocalDateTime.now();
+        DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm");
+
+        List<String> disponiveis = new ArrayList<>();
+        for (LocalTime horario = horarioAbertura; horario.isBefore(horarioFechamento); horario = horario.plusMinutes(30)) {
+            if (horariosOcupados.contains(horario)) {
+                continue;
+            }
+            if (hoje && data.atTime(horario).isBefore(agora)) {
+                continue;
+            }
+            disponiveis.add(horario.format(formatoHora));
+        }
+
+        return disponiveis;
     }
 
     public Agendamento buscarPorId(UUID id) {

@@ -74,6 +74,14 @@ public class AgendamentoController {
         return ResponseEntity.ok(agendamentoService.buscarPorId(id));
     }
 
+    @GetMapping("/disponibilidade")
+    @Operation(summary = "Horários disponíveis de um barbeiro em um dia",
+            description = "Retorna os horários livres (\"HH:mm\") dentro do horário de funcionamento. " +
+                    "Se o barbeiro estiver inativo, retorna lista vazia.")
+    public ResponseEntity<List<String>> listarDisponibilidade(@RequestParam UUID barbeiroId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data){
+        return ResponseEntity.ok(agendamentoService.listarDisponibilidade(barbeiroId, data));
+    }
+
 
     @PatchMapping("/{id}/cancelar")
     @Operation(summary = "Cancelar agendamento")
