@@ -13,6 +13,7 @@ import com.danielnery.barbearia.api.Repository.ServicoRepository;
 import com.danielnery.barbearia.api.Repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -94,7 +95,11 @@ public class AgendamentoService {
         agendamento.setStatusAgendamento(AGENDADO);
         agendamento.setValorServicoNoMomento(servico.getPreco());
 
-        return toResponse(agendamentoRepository.save(agendamento));
+        try {
+            return toResponse(agendamentoRepository.save(agendamento));
+        } catch (DataIntegrityViolationException exception) {
+            throw new HorarioIndisponivelException("Horário indisponível");
+        }
     }
 
     public List<AgendamentoResponse> listarTodos() {
