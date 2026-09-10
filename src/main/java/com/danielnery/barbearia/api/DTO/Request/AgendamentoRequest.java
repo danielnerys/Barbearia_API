@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record AgendamentoRequest (
-     @NotNull(message = "clienteId é obrigatório")
-     UUID clienteId,
      @NotNull(message = "barbeiroId é obrigatório")
      UUID barbeiroId,
      @NotNull(message = "servicoId é obrigatório")

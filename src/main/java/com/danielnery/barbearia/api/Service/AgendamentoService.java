@@ -10,7 +10,6 @@ import com.danielnery.barbearia.api.Model.Usuario;
 import com.danielnery.barbearia.api.Repository.AgendamentoRepository;
 import com.danielnery.barbearia.api.Repository.BarbeiroRepository;
 import com.danielnery.barbearia.api.Repository.ServicoRepository;
-import com.danielnery.barbearia.api.Repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,13 +26,8 @@ import static com.danielnery.barbearia.api.Model.enums.StatusAgendamento.CANCELA
 @RequiredArgsConstructor
 public class AgendamentoService {
     private final AgendamentoRepository agendamentoRepository;
-    private final UsuarioRepository usuarioRepository;
     private final BarbeiroRepository barbeiroRepository;
     private final ServicoRepository servicoRepository;
-
-    private Usuario buscarUsuario(UUID id) {
-        return usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário Não encontrado"));
-    }
 
     private Barbeiro buscarBarbeiro(UUID id) {
         return barbeiroRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário Não encontrado"));
@@ -70,12 +64,7 @@ public class AgendamentoService {
     }
 
     @Transactional
-    public AgendamentoResponse cadastrar(AgendamentoRequest request) {
-
-
-//        int minuto = request.dataHoraVisita().getMinute();
-
-        Usuario cliente = buscarUsuario(request.clienteId());
+    public AgendamentoResponse cadastrar(AgendamentoRequest request, Usuario cliente) {
 
         Barbeiro barbeiro = buscarBarbeiro(request.barbeiroId());
         Servico servico = buscarServico(request.servicoId());

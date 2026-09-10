@@ -3,6 +3,7 @@ package com.danielnery.barbearia.api.Controller;
 import com.danielnery.barbearia.api.DTO.Request.AgendamentoRequest;
 import com.danielnery.barbearia.api.DTO.response.AgendamentoResponse;
 import com.danielnery.barbearia.api.Model.Agendamento;
+import com.danielnery.barbearia.api.Model.Usuario;
 import com.danielnery.barbearia.api.Service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +29,8 @@ public class AgendamentoController {
 
     @PostMapping
     @Operation(summary = "Realizar agendamento.")
-    public ResponseEntity<AgendamentoResponse> cadastrarAgendamento(@Valid @RequestBody AgendamentoRequest agendamento){
-        return new ResponseEntity<>(agendamentoService.cadastrar(agendamento), HttpStatus.CREATED);
+    public ResponseEntity<AgendamentoResponse> cadastrarAgendamento(@Valid @RequestBody AgendamentoRequest agendamento, @AuthenticationPrincipal Usuario cliente){
+        return new ResponseEntity<>(agendamentoService.cadastrar(agendamento, cliente), HttpStatus.CREATED);
 
     }
 
