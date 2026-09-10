@@ -2,7 +2,6 @@ package com.danielnery.barbearia.api.Controller;
 
 import com.danielnery.barbearia.api.DTO.Request.AgendamentoRequest;
 import com.danielnery.barbearia.api.DTO.response.AgendamentoResponse;
-import com.danielnery.barbearia.api.Model.Agendamento;
 import com.danielnery.barbearia.api.Model.Usuario;
 import com.danielnery.barbearia.api.Service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,9 +68,9 @@ public class AgendamentoController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar agendamento por Id")
-    public ResponseEntity<Agendamento> buscarPorId(@PathVariable UUID id){
-        return ResponseEntity.ok(agendamentoService.buscarPorId(id));
+    @Operation(summary = "Buscar agendamento por Id", description = "Restrito ao dono do agendamento ou a um ADMIN.")
+    public ResponseEntity<AgendamentoResponse> buscarPorId(@PathVariable UUID id, @AuthenticationPrincipal Usuario solicitante){
+        return ResponseEntity.ok(agendamentoService.buscarPorIdParaUsuario(id, solicitante));
     }
 
     @GetMapping("/disponibilidade")

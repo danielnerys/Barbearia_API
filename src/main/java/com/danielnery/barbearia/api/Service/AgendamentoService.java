@@ -73,7 +73,7 @@ public class AgendamentoService {
     }
 
     private void validarHorarioDisponivel(Barbeiro barbeiro, LocalDateTime dataHora) {
-        if (agendamentoRepository.existsByBarbeiroAndDataHoraVisita(barbeiro, dataHora)) {
+        if (agendamentoRepository.existsByBarbeiroAndDataHoraVisitaAndStatusAgendamentoNot(barbeiro, dataHora, CANCELADO)) {
             throw new HorarioIndisponivelException("Horário indisponível");
         }
     }
@@ -160,15 +160,26 @@ public class AgendamentoService {
         return agendamentoRepository.findById(id).orElseThrow(() -> new AgendamentoNaoEncontrado("Agendamento não encontrado, verifique o ID"));
     }
 
-    public AgendamentoResponse cancelarAgendamento(UUID id, Usuario solicitante) {
+    public AgendamentoResponse buscarPorIdParaUsuario(UUID id, Usuario solicitante) {
         Agendamento agendamento = buscarPorId(id);
+        validarAcesso(agendamento, solicitante, "Você não pode ver o agendamento de outra pessoa.");
 
+        return toResponse(agendamento);
+    }
+
+    private void validarAcesso(Agendamento agendamento, Usuario solicitante, String mensagem) {
         boolean donoDoAgendamento = agendamento.getCliente().getId().equals(solicitante.getId());
         boolean admin = solicitante.getRole() == Role.ADMIN;
 
         if (!donoDoAgendamento && !admin) {
-            throw new OperacaoNaoPermitidaException("Você não pode cancelar o agendamento de outra pessoa.");
+            throw new OperacaoNaoPermitidaException(mensagem);
         }
+    }
+
+    public AgendamentoResponse cancelarAgendamento(UUID id, Usuario solicitante) {
+        Agendamento agendamento = buscarPorId(id);
+
+        validarAcesso(agendamento, solicitante, "Você não pode cancelar o agendamento de outra pessoa.");
 
         if (agendamento.getStatusAgendamento() == CANCELADO) {
             throw new OperacaoNaoPermitidaException("Agendamento já está cancelado.");

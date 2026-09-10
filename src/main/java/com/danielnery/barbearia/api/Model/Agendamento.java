@@ -12,10 +12,10 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "agendamentos", uniqueConstraints = @UniqueConstraint(
-        name = "uk_barbeiro_data_hora_visita",
-        columnNames = {"barbeiro_id", "data_hora_visita"}
-))
+// A unicidade de (barbeiro, dataHoraVisita) precisa valer apenas para agendamentos NÃO cancelados —
+// caso contrário um horário cancelado ficaria bloqueado para sempre. JPA não expressa índice parcial,
+// então a constraint vive no banco como índice parcial; ver docs/SPEC-ajustes-backend.md.
+@Table(name = "agendamentos")
 @NoArgsConstructor
 public class Agendamento {
     @Id
