@@ -2,6 +2,7 @@ package com.danielnery.barbearia.api.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +22,14 @@ public class GlobalExceptionHandler {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> tratarAccessDenied(AccessDeniedException exception) {
+        Map<String, String> erro = new HashMap<>();
+        erro.put("mensagem", "Você não tem permissão para executar esta ação.");
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
     }
 
     @ExceptionHandler(ServicoJaExisteException.class)
@@ -99,5 +108,14 @@ public class GlobalExceptionHandler {
         erro.put("mensagem", exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    @ExceptionHandler(OperacaoNaoPermitidaException.class)
+    public ResponseEntity<Map<String, String>> OperacaoNaoPermitidaException(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+
+        erro.put("mensagem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
     }
 }

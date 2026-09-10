@@ -9,13 +9,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin("*")
 @RequiredArgsConstructor
 @RequestMapping("/api/usuarios")
 @Tag(name = "Usuários", description = "Endpoint para administração de usuários")
@@ -31,6 +31,7 @@ public class UsuarioController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar todos Usuários")
     public ResponseEntity<List<UsuarioResponse>> listarTodos() {
         List<UsuarioResponse> usuarios = usuarioService.listarTodos();
@@ -41,6 +42,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar usuário por ID")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));

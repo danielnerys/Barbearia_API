@@ -10,15 +10,23 @@ import com.danielnery.barbearia.api.Model.Usuario;
 import com.danielnery.barbearia.api.Repository.AgendamentoRepository;
 import com.danielnery.barbearia.api.Repository.BarbeiroRepository;
 import com.danielnery.barbearia.api.Repository.ServicoRepository;
-import com.danielnery.barbearia.api.Repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.danielnery.barbearia.api.Model.enums.Role;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.danielnery.barbearia.api.Model.enums.StatusAgendamento.AGENDADO;
 import static com.danielnery.barbearia.api.Model.enums.StatusAgendamento.CANCELADO;
@@ -27,20 +35,21 @@ import static com.danielnery.barbearia.api.Model.enums.StatusAgendamento.CANCELA
 @RequiredArgsConstructor
 public class AgendamentoService {
     private final AgendamentoRepository agendamentoRepository;
-    private final UsuarioRepository usuarioRepository;
     private final BarbeiroRepository barbeiroRepository;
     private final ServicoRepository servicoRepository;
 
-    private Usuario buscarUsuario(UUID id) {
-        return usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário Não encontrado"));
-    }
+    @Value("${api.barbearia.horario-abertura:09:00}")
+    private LocalTime horarioAbertura;
+
+    @Value("${api.barbearia.horario-fechamento:19:00}")
+    private LocalTime horarioFechamento;
 
     private Barbeiro buscarBarbeiro(UUID id) {
-        return barbeiroRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário Não encontrado"));
+        return barbeiroRepository.findById(id).orElseThrow(() -> new BarbeiroNaoEncontrado("Barbeiro não encontrado"));
     }
 
     private Servico buscarServico(UUID id) {
-        return servicoRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Usuário Não encontrado"));
+        return servicoRepository.findById(id).orElseThrow(() -> new ServicoNaoEncontradoException("Serviço não encontrado"));
     }
 
     private void validarHorario(AgendamentoRequest request) {
@@ -64,18 +73,13 @@ public class AgendamentoService {
     }
 
     private void validarHorarioDisponivel(Barbeiro barbeiro, LocalDateTime dataHora) {
-        if (agendamentoRepository.existsByBarbeiroAndDataHoraVisita(barbeiro, dataHora)) {
+        if (agendamentoRepository.existsByBarbeiroAndDataHoraVisitaAndStatusAgendamentoNot(barbeiro, dataHora, CANCELADO)) {
             throw new HorarioIndisponivelException("Horário indisponível");
         }
     }
 
     @Transactional
-    public AgendamentoResponse cadastrar(AgendamentoRequest request) {
-
-
-//        int minuto = request.dataHoraVisita().getMinute();
-
-        Usuario cliente = buscarUsuario(request.clienteId());
+    public AgendamentoResponse cadastrar(AgendamentoRequest request, Usuario cliente) {
 
         Barbeiro barbeiro = buscarBarbeiro(request.barbeiroId());
         Servico servico = buscarServico(request.servicoId());
@@ -106,12 +110,85 @@ public class AgendamentoService {
         return agendamentoRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    public List<AgendamentoResponse> listarMeus(Usuario cliente) {
+        return agendamentoRepository.findByClienteOrderByDataHoraVisitaDesc(cliente).stream().map(this::toResponse).toList();
+    }
+
+    public List<AgendamentoResponse> listarPorBarbeiroEData(UUID barbeiroId, LocalDate data) {
+        Barbeiro barbeiro = buscarBarbeiro(barbeiroId);
+
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.atTime(LocalTime.MAX);
+
+        return agendamentoRepository.findByBarbeiroAndDataHoraVisitaBetween(barbeiro, inicio, fim).stream().map(this::toResponse).toList();
+    }
+
+    public List<String> listarDisponibilidade(UUID barbeiroId, LocalDate data) {
+        Barbeiro barbeiro = buscarBarbeiro(barbeiroId);
+
+        if (!barbeiro.getAtivo()) {
+            return List.of();
+        }
+
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.atTime(LocalTime.MAX);
+
+        Set<LocalTime> horariosOcupados = agendamentoRepository.findByBarbeiroAndDataHoraVisitaBetween(barbeiro, inicio, fim).stream()
+                .filter(agendamento -> agendamento.getStatusAgendamento() != CANCELADO)
+                .map(agendamento -> agendamento.getDataHoraVisita().toLocalTime())
+                .collect(Collectors.toSet());
+
+        boolean hoje = data.isEqual(LocalDate.now());
+        LocalDateTime agora = LocalDateTime.now();
+        DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm");
+
+        List<String> disponiveis = new ArrayList<>();
+        for (LocalTime horario = horarioAbertura; horario.isBefore(horarioFechamento); horario = horario.plusMinutes(30)) {
+            if (horariosOcupados.contains(horario)) {
+                continue;
+            }
+            if (hoje && data.atTime(horario).isBefore(agora)) {
+                continue;
+            }
+            disponiveis.add(horario.format(formatoHora));
+        }
+
+        return disponiveis;
+    }
+
     public Agendamento buscarPorId(UUID id) {
         return agendamentoRepository.findById(id).orElseThrow(() -> new AgendamentoNaoEncontrado("Agendamento não encontrado, verifique o ID"));
     }
 
-    public AgendamentoResponse cancelarAgendamento(UUID id) {
+    public AgendamentoResponse buscarPorIdParaUsuario(UUID id, Usuario solicitante) {
         Agendamento agendamento = buscarPorId(id);
+        validarAcesso(agendamento, solicitante, "Você não pode ver o agendamento de outra pessoa.");
+
+        return toResponse(agendamento);
+    }
+
+    private void validarAcesso(Agendamento agendamento, Usuario solicitante, String mensagem) {
+        boolean donoDoAgendamento = agendamento.getCliente().getId().equals(solicitante.getId());
+        boolean admin = solicitante.getRole() == Role.ADMIN;
+
+        if (!donoDoAgendamento && !admin) {
+            throw new OperacaoNaoPermitidaException(mensagem);
+        }
+    }
+
+    public AgendamentoResponse cancelarAgendamento(UUID id, Usuario solicitante) {
+        Agendamento agendamento = buscarPorId(id);
+
+        validarAcesso(agendamento, solicitante, "Você não pode cancelar o agendamento de outra pessoa.");
+
+        if (agendamento.getStatusAgendamento() == CANCELADO) {
+            throw new OperacaoNaoPermitidaException("Agendamento já está cancelado.");
+        }
+
+        if (agendamento.getDataHoraVisita().isBefore(LocalDateTime.now())) {
+            throw new OperacaoNaoPermitidaException("Não é possível cancelar um agendamento que já passou.");
+        }
+
         agendamento.setStatusAgendamento(CANCELADO);
         return toResponse(agendamentoRepository.save(agendamento));
 

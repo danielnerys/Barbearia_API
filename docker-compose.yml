@@ -14,6 +14,7 @@ services:
       ADMIN_NOME: ${ADMIN_NOME:-Admin}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@barbearia.com}
       ADMIN_SENHA: ${ADMIN_SENHA:-admin123}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
     depends_on:
       db:
         condition: service_healthy
