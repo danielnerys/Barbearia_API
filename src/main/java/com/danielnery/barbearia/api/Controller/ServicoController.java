@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class ServicoController {
     private final ServicoService servicoService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar todos os serviços.", description = "Rota para listar todos os serviços cadastrados.")
     public ResponseEntity<List<ServicoResponse>> listarTodos() {
         List<ServicoResponse> servicos = servicoService.listarTodos();
@@ -51,6 +53,7 @@ public class ServicoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cadastrar serviço", description = "Rota para cadastrar novo serviço")
     public ResponseEntity<ServicoResponse> cadastrarServico(@Valid @RequestBody ServicoRequest request) {
         ServicoResponse novoServico = servicoService.cadastrar(request);
@@ -58,12 +61,14 @@ public class ServicoController {
     }
 
     @PatchMapping("/{id}/ativar")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Ativar Serviço", description = "Essa rota serve para ativar um serviço")
     public ResponseEntity<ServicoResponse> ativar(@PathVariable UUID id) {
         return ResponseEntity.ok(servicoService.ativar(id));
     }
 
     @PatchMapping("/{id}/desativar")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Desativar serviço", description = "Rota para desativar um serviço")
     public ResponseEntity<ServicoResponse> desativar(@PathVariable UUID id) {
         return ResponseEntity.ok(servicoService.desativar(id));

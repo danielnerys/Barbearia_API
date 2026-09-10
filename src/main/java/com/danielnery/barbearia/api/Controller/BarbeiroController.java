@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,12 +25,14 @@ public class BarbeiroController {
     private final BarbeiroService barbeiroService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cadastrar novo barbeiro")
     public ResponseEntity<BarbeiroResponse> cadastrar(@Valid @RequestBody BarbeiroRequest barbeiro){
         return new ResponseEntity<>(barbeiroService.cadastrar(barbeiro), HttpStatus.CREATED);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar todos barbeiros")
     public ResponseEntity<List<BarbeiroResponse>> listarTodos(){
         List<BarbeiroResponse> barbeiros = barbeiroService.listarTodos();
@@ -56,12 +59,14 @@ public class BarbeiroController {
     }
 
     @PatchMapping("/{id}/ativar")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Ativar barbeiro")
     public ResponseEntity<BarbeiroResponse> ativar(@PathVariable UUID id){
         return ResponseEntity.ok(barbeiroService.ativar(id));
     }
 
     @PatchMapping("/{id}/desativar")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Desativar barbeiro")
     public ResponseEntity<BarbeiroResponse> desativar(@PathVariable UUID id){
         return ResponseEntity.ok(barbeiroService.desativar(id));

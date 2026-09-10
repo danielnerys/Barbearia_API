@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class UsuarioController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar todos Usuários")
     public ResponseEntity<List<UsuarioResponse>> listarTodos() {
         List<UsuarioResponse> usuarios = usuarioService.listarTodos();
@@ -40,6 +42,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar usuário por ID")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable UUID id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
