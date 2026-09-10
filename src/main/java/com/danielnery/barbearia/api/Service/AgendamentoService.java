@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.danielnery.barbearia.api.Model.enums.Role;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -114,8 +116,24 @@ public class AgendamentoService {
         return agendamentoRepository.findById(id).orElseThrow(() -> new AgendamentoNaoEncontrado("Agendamento não encontrado, verifique o ID"));
     }
 
-    public AgendamentoResponse cancelarAgendamento(UUID id) {
+    public AgendamentoResponse cancelarAgendamento(UUID id, Usuario solicitante) {
         Agendamento agendamento = buscarPorId(id);
+
+        boolean donoDoAgendamento = agendamento.getCliente().getId().equals(solicitante.getId());
+        boolean admin = solicitante.getRole() == Role.ADMIN;
+
+        if (!donoDoAgendamento && !admin) {
+            throw new OperacaoNaoPermitidaException("Você não pode cancelar o agendamento de outra pessoa.");
+        }
+
+        if (agendamento.getStatusAgendamento() == CANCELADO) {
+            throw new OperacaoNaoPermitidaException("Agendamento já está cancelado.");
+        }
+
+        if (agendamento.getDataHoraVisita().isBefore(LocalDateTime.now())) {
+            throw new OperacaoNaoPermitidaException("Não é possível cancelar um agendamento que já passou.");
+        }
+
         agendamento.setStatusAgendamento(CANCELADO);
         return toResponse(agendamentoRepository.save(agendamento));
 

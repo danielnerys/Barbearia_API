@@ -109,4 +109,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
+
+    @ExceptionHandler(OperacaoNaoPermitidaException.class)
+    public ResponseEntity<Map<String, String>> OperacaoNaoPermitidaException(RuntimeException exception){
+        Map<String, String> erro = new HashMap<>();
+
+        erro.put("mensagem", exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
+    }
 }

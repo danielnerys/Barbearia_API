@@ -77,7 +77,7 @@ public class AgendamentoController {
 
     @PatchMapping("/{id}/cancelar")
     @Operation(summary = "Cancelar agendamento")
-    public ResponseEntity<AgendamentoResponse> cancelarAgendamento(@PathVariable UUID id){
-        return ResponseEntity.ok(agendamentoService.cancelarAgendamento(id));
+    public ResponseEntity<AgendamentoResponse> cancelarAgendamento(@PathVariable UUID id, @AuthenticationPrincipal Usuario solicitante){
+        return ResponseEntity.ok(agendamentoService.cancelarAgendamento(id, solicitante));
     }
 }
