@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("*")
 @RequestMapping("/api/agendamentos")
 
 @Tag(name = "Agendamentos", description = "Endpoint para gerenciar agendamentos")

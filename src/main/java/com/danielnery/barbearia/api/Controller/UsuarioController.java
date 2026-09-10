@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin("*")
 @RequiredArgsConstructor
 @RequestMapping("/api/usuarios")
 @Tag(name = "Usuários", description = "Endpoint para administração de usuários")

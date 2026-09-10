@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api/servicos")
 @Tag(name = "Serviços", description = "Endpoint para gerenciar serviços.")
 public class ServicoController {

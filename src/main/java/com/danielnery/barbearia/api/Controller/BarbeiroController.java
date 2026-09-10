@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api/barbeiros")
 @RequiredArgsConstructor
 @Tag(name = "Barbeiros", description = "Endpoint para gerenciar barbeiros")
