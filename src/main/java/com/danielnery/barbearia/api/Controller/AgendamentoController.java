@@ -13,9 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +41,27 @@ public class AgendamentoController {
     @Operation(summary = "Listar todos agendamentos")
     public ResponseEntity<List<AgendamentoResponse>> listarTodos(){
         List<AgendamentoResponse> agendamentos = agendamentoService.listarTodos();
+        if(agendamentos.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return new ResponseEntity<>(agendamentos, HttpStatus.OK);
+    }
+
+    @GetMapping("/meus")
+    @Operation(summary = "Listar meus agendamentos")
+    public ResponseEntity<List<AgendamentoResponse>> listarMeus(@AuthenticationPrincipal Usuario cliente){
+        List<AgendamentoResponse> agendamentos = agendamentoService.listarMeus(cliente);
+        if(agendamentos.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return new ResponseEntity<>(agendamentos, HttpStatus.OK);
+    }
+
+    @GetMapping("/barbeiro/{barbeiroId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Agenda de um barbeiro em um dia")
+    public ResponseEntity<List<AgendamentoResponse>> listarPorBarbeiroEData(@PathVariable UUID barbeiroId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data){
+        List<AgendamentoResponse> agendamentos = agendamentoService.listarPorBarbeiroEData(barbeiroId, data);
         if(agendamentos.isEmpty()){
             return ResponseEntity.noContent().build();
         }

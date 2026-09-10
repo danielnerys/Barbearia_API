@@ -15,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,6 +95,19 @@ public class AgendamentoService {
 
     public List<AgendamentoResponse> listarTodos() {
         return agendamentoRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public List<AgendamentoResponse> listarMeus(Usuario cliente) {
+        return agendamentoRepository.findByClienteOrderByDataHoraVisitaDesc(cliente).stream().map(this::toResponse).toList();
+    }
+
+    public List<AgendamentoResponse> listarPorBarbeiroEData(UUID barbeiroId, LocalDate data) {
+        Barbeiro barbeiro = buscarBarbeiro(barbeiroId);
+
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.atTime(LocalTime.MAX);
+
+        return agendamentoRepository.findByBarbeiroAndDataHoraVisitaBetween(barbeiro, inicio, fim).stream().map(this::toResponse).toList();
     }
 
     public Agendamento buscarPorId(UUID id) {
