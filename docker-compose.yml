@@ -11,6 +11,9 @@ services:
       PGUSER: ${POSTGRES_USER:-postgres}
       PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
+      ADMIN_NOME: ${ADMIN_NOME:-Admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@barbearia.com}
+      ADMIN_SENHA: ${ADMIN_SENHA:-admin123}
     depends_on:
       db:
         condition: service_healthy
